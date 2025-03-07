@@ -121,31 +121,154 @@ function atualizarContador() {
 
 setInterval(atualizarContador, 1000);
 
+const emojisPorCor = {
+    vermelho: {
+        coracoes: ['❤️', '💝', '💗', '💓', '💞'],
+        extras: ['🌹', '🎀']
+    },
+    laranja: {
+        coracoes: ['🧡', '💘', '💑'],
+        extras: ['🌅']
+    },
+    amarelo: {
+        coracoes: ['💛', '⭐', '✨', '🌟'],
+        extras: ['🌻', '🌼', '🌞']
+    },
+    verde: {
+        coracoes: ['💚', '💚', '💚', '💚']
+    },
+    azulClaro: {
+        coracoes: ['💙', '💙', '💙', '💙', ]
+    },
+    azul: {
+        coracoes: ['💙', '💙', '💙', '💙']
+    },
+    roxo: {
+        coracoes: ['💜'],
+        extras: ['🌸', '🦄']
+    }
+};
+
+function obterCorAtual() {
+    // Calcula qual será a próxima cor baseado no progresso
+    // Muda os emojis quando estiver 80% do caminho para a próxima cor
+    const progressoAjustado = progresso + 0.2;
+    
+    if (progressoAjustado >= 1) {
+        const proximoIndex = (corAtualIndex + 1) % cores.length;
+        const indices = {
+            0: 'vermelho',
+            1: 'laranja',
+            2: 'amarelo',
+            3: 'verde',
+            4: 'azulClaro',
+            5: 'azul',
+            6: 'roxo'
+        };
+        return indices[proximoIndex];
+    }
+
+    const indices = {
+        0: 'vermelho',
+        1: 'laranja',
+        2: 'amarelo',
+        3: 'verde',
+        4: 'azulClaro',
+        5: 'azul',
+        6: 'roxo'
+    };
+    return indices[corAtualIndex];
+}
+
 function criarCoracao() {
     const coracao = document.createElement('div');
     coracao.className = 'heart';
     
-    const coracoes = ['❤️', '💖', '💝', '💗', '💓', '💕', '💘', '💞'];
+    const corAtual = obterCorAtual();
+    const emojis = emojisPorCor[corAtual];
     
-    coracao.innerHTML = coracoes[Math.floor(Math.random() * coracoes.length)];
+    const usarCoracao = Math.random() < 0.7;
+    const listaEmojis = usarCoracao ? emojis.coracoes : emojis.extras;
+    
+    coracao.innerHTML = listaEmojis[Math.floor(Math.random() * listaEmojis.length)];
     
     coracao.style.left = Math.random() * 100 + 'vw';
     
-    coracao.style.animationDuration = (Math.random() * 3 + 6) + 's';
+    // Reduzindo o tempo de animação para que os emojis sumam mais rápido
+    coracao.style.animationDuration = (Math.random() * 2 + 4) + 's';
     
     const scale = 0.8 + Math.random() * 0.7;
     coracao.style.transform = `scale(${scale})`;
     
     document.body.appendChild(coracao);
 
+    // Reduzindo o tempo de remoção também
     setTimeout(() => {
         coracao.remove();
-    }, 9000);
+    }, 6000);
 }
 
-const MAX_CORACOES = 15;
+// Aumentando a frequência de criação dos emojis
+const MAX_CORACOES = 12; // Reduzindo um pouco para manter a performance
 setInterval(() => {
     if (document.querySelectorAll('.heart').length < MAX_CORACOES) {
         criarCoracao();
     }
-}, 800);
+}, 600); // Intervalo menor para criar mais frequentemente
+
+function interpolarCor(cor1, cor2, fator) {
+    const r1 = parseInt(cor1.substring(1,3), 16);
+    const g1 = parseInt(cor1.substring(3,5), 16);
+    const b1 = parseInt(cor1.substring(5,7), 16);
+    
+    const r2 = parseInt(cor2.substring(1,3), 16);
+    const g2 = parseInt(cor2.substring(3,5), 16);
+    const b2 = parseInt(cor2.substring(5,7), 16);
+    
+    const r = Math.round(r1 + (r2 - r1) * fator);
+    const g = Math.round(g1 + (g2 - g1) * fator);
+    const b = Math.round(b1 + (b2 - b1) * fator);
+    
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+
+const cores = [
+    '#ff6b6b', // vermelho suave
+    '#ffa07a', // laranja suave
+    '#fff176', // amarelo suave
+    '#aed581', // verde suave
+    '#80deea', // azul claro suave
+    '#82b1ff', // azul suave
+    '#b39ddb', // roxo suave
+    '#ff6b6b'  // volta ao vermelho
+];
+
+let corAtualIndex = 0;
+let progresso = 0;
+const velocidade = 0.001; // quanto menor, mais lenta a transição
+
+function atualizarCores() {
+    const corAtual = cores[corAtualIndex];
+    const proximaCor = cores[(corAtualIndex + 1) % cores.length];
+    
+    const cor1 = interpolarCor(corAtual, proximaCor, progresso);
+    const cor2 = interpolarCor(
+        corAtual, 
+        proximaCor, 
+        Math.min(1, progresso + 0.2)
+    );
+    
+    document.documentElement.style.setProperty('--cor1', cor1);
+    document.documentElement.style.setProperty('--cor2', cor2);
+    
+    progresso += velocidade;
+    
+    if (progresso >= 1) {
+        progresso = 0;
+        corAtualIndex = (corAtualIndex + 1) % cores.length;
+    }
+    
+    requestAnimationFrame(atualizarCores);
+}
+
+atualizarCores();

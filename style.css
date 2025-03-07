@@ -4,9 +4,36 @@
     box-sizing: border-box;
 }
 
+@keyframes gradientBG {
+    0% {
+        background: linear-gradient(45deg, #ff6b6b, #ff8e8e); /* Vermelho suave */
+    }
+    14% {
+        background: linear-gradient(45deg, #ffa07a, #ffd4b8); /* Laranja suave */
+    }
+    28% {
+        background: linear-gradient(45deg, #fff176, #fff9c4); /* Amarelo suave */
+    }
+    42% {
+        background: linear-gradient(45deg, #aed581, #c5e1a5); /* Verde suave */
+    }
+    56% {
+        background: linear-gradient(45deg, #80deea, #b2ebf2); /* Azul claro suave */
+    }
+    70% {
+        background: linear-gradient(45deg, #82b1ff, #bbdefb); /* Azul suave */
+    }
+    84% {
+        background: linear-gradient(45deg, #b39ddb, #d1c4e9); /* Roxo suave */
+    }
+    100% {
+        background: linear-gradient(45deg, #ff6b6b, #ff8e8e); /* Volta ao vermelho suave */
+    }
+}
+
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    background: linear-gradient(45deg, var(--cor1), var(--cor2));
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -15,6 +42,12 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
+}
+
+/* Removemos a animação anterior e adicionamos as variáveis de cor */
+:root {
+    --cor1: #ff6b6b;
+    --cor2: #ff8e8e;
 }
 
 .container {
