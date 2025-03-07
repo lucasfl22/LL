@@ -122,31 +122,28 @@ h1 {
 
 .heart {
     position: absolute;
-    font-size: 80px;
-    animation: float 8s ease-in-out infinite;
+    font-size: 50px;
+    animation: float 6s ease-in-out infinite;
     opacity: 0;
-    filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.4));
+    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.3));
     z-index: 0;
     transform-origin: center;
+    will-change: transform, opacity;
 }
 
 @keyframes float {
     0% {
-        transform: translateY(100vh) scale(0.8) rotate(0deg);
+        transform: translateY(100vh) scale(0.8);
         opacity: 0;
     }
-    10% {
+    15% {
         opacity: 0.9;
     }
-    50% {
-        opacity: 1;
-        transform: translateY(50vh) scale(1.5) rotate(180deg);
-    }
-    90% {
+    85% {
         opacity: 0.9;
     }
     100% {
-        transform: translateY(-20vh) scale(0.8) rotate(360deg);
+        transform: translateY(-20vh) scale(0.8);
         opacity: 0;
     }
 }
@@ -170,5 +167,9 @@ h1 {
 
     .message {
         font-size: 1rem;
+    }
+
+    .heart {
+        font-size: 40px;
     }
 }

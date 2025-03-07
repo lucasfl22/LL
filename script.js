@@ -131,17 +131,21 @@ function criarCoracao() {
     
     coracao.style.left = Math.random() * 100 + 'vw';
     
-    coracao.style.animationDuration = (Math.random() * 4 + 8) + 's';
+    coracao.style.animationDuration = (Math.random() * 3 + 6) + 's';
     
-    const scale = 1.2 + Math.random() * 1.3;
+    const scale = 0.8 + Math.random() * 0.7;
     coracao.style.transform = `scale(${scale})`;
     
     document.body.appendChild(coracao);
 
     setTimeout(() => {
         coracao.remove();
-    }, 12000);
+    }, 9000);
 }
 
-
-setInterval(criarCoracao, 300);
+const MAX_CORACOES = 15;
+setInterval(() => {
+    if (document.querySelectorAll('.heart').length < MAX_CORACOES) {
+        criarCoracao();
+    }
+}, 800);
