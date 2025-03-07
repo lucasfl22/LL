@@ -78,13 +78,6 @@ class Carousel {
 
 const carousel = new Carousel();
 
-document.getElementById('upload-foto').addEventListener('change', function(e) {
-    const files = e.target.files;
-    for (let file of files) {
-        carousel.addPhoto(file);
-    }
-});
-
 function calcularDiferenca(inicio, fim) {
     let anos = fim.getFullYear() - inicio.getFullYear();
     let meses = fim.getMonth() - inicio.getMonth();
