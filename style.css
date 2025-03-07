@@ -136,27 +136,29 @@ h1 {
 .heart {
     position: absolute;
     font-size: 50px;
-    animation: float 6s ease-in-out infinite;
+    animation: float 6s linear infinite;
     opacity: 0;
-    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.3));
-    z-index: 0;
-    transform-origin: center;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
     will-change: transform, opacity;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    bottom: -50px;
+    z-index: 1000;
 }
 
 @keyframes float {
     0% {
-        transform: translateY(100vh) scale(0.8);
+        transform: translateY(0) scale(var(--scale, 1));
         opacity: 0;
     }
-    15% {
-        opacity: 0.9;
+    10% {
+        opacity: 1;
     }
-    85% {
-        opacity: 0.9;
+    90% {
+        opacity: 1;
     }
     100% {
-        transform: translateY(-20vh) scale(0.8);
+        transform: translateY(-120vh) scale(var(--scale, 1));
         opacity: 0;
     }
 }
@@ -193,3 +195,176 @@ h1 {
         max-height: 400px;
     }
 }
+
+#milesimos {
+    font-size: 0.7em;
+    opacity: 0.8;
+}
+
+#tempo {
+    font-family: monospace;
+    font-size: 1.2em;
+}
+
+.emoji-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: auto !important;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+/* Estrelas */
+.star {
+    position: fixed;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    animation: starTwinkle 2s infinite;
+    pointer-events: none;
+}
+
+.shooting-star {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px white);
+    animation: shootingStar 3s ease-out;
+}
+
+/* Pétalas */
+.petal {
+    position: fixed;
+    pointer-events: none;
+    opacity: 0;
+    animation: petalFall 10s linear;
+}
+
+@keyframes starTwinkle {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.2); }
+}
+
+@keyframes shootingStar {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(45deg) scale(1);
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) rotate(45deg) scale(0.2);
+    }
+}
+
+@keyframes petalFall {
+    0% {
+        opacity: 0;
+        transform: translateY(-10vh) rotate(0deg);
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(100vh) rotate(var(--rotation));
+    }
+}
+.heart-counter {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 25px;
+    backdrop-filter: blur(5px);
+    color: white;
+    font-size: 18px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.counter-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.counter-icon {
+    font-size: 24px;
+}
+
+#heartCount {
+    font-weight: bold;
+    font-size: 24px;
+    min-width: 40px;
+    text-align: center;
+}
+
+@keyframes counterPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.counter-pop {
+    animation: counterPop 0.3s ease;
+}
+
+/* Adicione esta media query para telas menores */
+@media (max-width: 768px) {
+    .heart-counter {
+        font-size: 16px;
+        padding: 8px 15px;
+    }
+    
+    .counter-icon {
+        font-size: 20px;
+    }
+    
+    #heartCount {
+        font-size: 20px;
+    }
+}
+
+.combo-mensagem {
+    position: fixed;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    z-index: 1000;
+    animation: comboFloat 1.5s ease-out forwards;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@keyframes comboFloat {
+    0% {
+        transform: scale(0.5) translateY(0);
+        opacity: 0;
+    }
+    20% {
+        transform: scale(1.2) translateY(-20px);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1) translateY(-50px);
+        opacity: 0;
+    }
+}
+

@@ -105,14 +105,16 @@ function atualizarContador() {
     const horas = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
     const minutos = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
     const segundos = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+    const milesimos = String(diff % 1000).padStart(3, '0');
 
     document.getElementById('anos').textContent = `${tempoDecorrido.anos} ${tempoDecorrido.anos === 1 ? 'ano' : 'anos'}`;
     document.getElementById('meses').textContent = `${tempoDecorrido.meses} ${tempoDecorrido.meses === 1 ? 'mês' : 'meses'}`;
     document.getElementById('dias').textContent = `${tempoDecorrido.dias} ${tempoDecorrido.dias === 1 ? 'dia' : 'dias'}`;
-    document.getElementById('tempo').textContent = `${horas}:${minutos}:${segundos}`;
+    document.getElementById('tempo').innerHTML = `${horas}:${minutos}:${segundos}.<span id="milesimos">${milesimos}</span>`;
 }
 
-setInterval(atualizarContador, 1000);
+// Atualizar o intervalo para ser mais frequente para mostrar os milésimos
+setInterval(atualizarContador, 10); // Atualiza a cada 10ms
 
 const emojisPorCor = {
     vermelho: {
@@ -173,41 +175,149 @@ function obterCorAtual() {
     return indices[corAtualIndex];
 }
 
+// Primeiro, vamos garantir que o container de emojis permita cliques
+const emojiContainer = document.createElement('div');
+emojiContainer.className = 'emoji-container';
+emojiContainer.style.pointerEvents = 'auto'; // Permite cliques no container
+document.body.appendChild(emojiContainer);
+
+// Som para a explosão
+const popSound = new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3');
+popSound.volume = 0.3;
+
+let heartCount = 0;
+const heartCounter = document.getElementById('heartCount');
+
+function criarMiniCoracao(x, y, emoji) {
+    // Incrementa e atualiza o contador
+    heartCount++;
+    heartCounter.textContent = heartCount;
+    heartCounter.classList.add('counter-pop');
+    
+    // Remove a classe de animação após ela terminar
+    setTimeout(() => {
+        heartCounter.classList.remove('counter-pop');
+    }, 300);
+
+    // Cria um número para mostrar +1
+    const plusOne = document.createElement('div');
+    plusOne.className = 'plus-one';
+    plusOne.textContent = '+1';
+    plusOne.style.left = `${x}px`;
+    plusOne.style.top = `${y}px`;
+    document.body.appendChild(plusOne);
+
+    // Remove o +1 após a animação
+    setTimeout(() => plusOne.remove(), 1000);
+
+    // Toca o som
+    const newSound = popSound.cloneNode();
+    newSound.play().catch(err => console.log('Erro ao tocar som:', err));
+
+    const quantidade = 15;
+    const cores = [
+        '#ff6b6b', '#ffa07a', '#fff176', 
+        '#aed581', '#80deea', '#82b1ff'
+    ];
+    
+    for (let i = 0; i < quantidade; i++) {
+        const mini = document.createElement('div');
+        mini.className = 'mini-heart';
+        
+        if (i % 2 === 0) {
+            mini.innerHTML = emoji;
+        } else {
+            mini.style.background = cores[Math.floor(Math.random() * cores.length)];
+            mini.style.width = '10px';
+            mini.style.height = '10px';
+            mini.style.borderRadius = '50%';
+        }
+        
+        const angulo = (i / quantidade) * 2 * Math.PI + Math.random() * 0.5;
+        const distancia = 50 + Math.random() * 100;
+        
+        const tx = Math.cos(angulo) * distancia;
+        const ty = Math.sin(angulo) * distancia;
+        
+        mini.style.setProperty('--tx', `${tx}px`);
+        mini.style.setProperty('--ty', `${ty}px`);
+        
+        mini.style.left = `${x}px`;
+        mini.style.top = `${y}px`;
+        
+        emojiContainer.appendChild(mini);
+        
+        setTimeout(() => mini.remove(), 1000);
+    }
+}
+
 function criarCoracao() {
     const coracao = document.createElement('div');
     coracao.className = 'heart';
     
-    const corAtual = obterCorAtual();
-    const emojis = emojisPorCor[corAtual];
+    const coracoes = [
+        '❤️', '💖', '💝', '💗', '💓', '💕', '💘', '💞',
+        '💟', '💌', '💑', '💘', '💝', '💖', '💗'
+    ];
     
-    const usarCoracao = Math.random() < 0.7;
-    const listaEmojis = usarCoracao ? emojis.coracoes : emojis.extras;
+    coracao.innerHTML = coracoes[Math.floor(Math.random() * coracoes.length)];
     
-    coracao.innerHTML = listaEmojis[Math.floor(Math.random() * listaEmojis.length)];
+    const scale = 0.6 + Math.random() * 1.0;
+    coracao.style.transform = `scale(${scale})`;
     
     coracao.style.left = Math.random() * 100 + 'vw';
     
-    // Reduzindo o tempo de animação para que os emojis sumam mais rápido
-    coracao.style.animationDuration = (Math.random() * 2 + 4) + 's';
+    // Adiciona o evento de clique diretamente no coração
+    coracao.onclick = function(e) {
+        e.stopPropagation(); // Impede que o clique se propague
+        criarMiniCoracao(e.clientX, e.clientY, this.innerHTML);
+        this.remove();
+    };
     
-    const scale = 0.8 + Math.random() * 0.7;
-    coracao.style.transform = `scale(${scale})`;
-    
-    document.body.appendChild(coracao);
+    emojiContainer.appendChild(coracao);
 
-    // Reduzindo o tempo de remoção também
     setTimeout(() => {
         coracao.remove();
     }, 6000);
 }
 
-// Aumentando a frequência de criação dos emojis
-const MAX_CORACOES = 12; // Reduzindo um pouco para manter a performance
+// Atualiza o CSS necessário
+const estiloCoracao = document.createElement('style');
+estiloCoracao.textContent = `
+    .heart {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+    .emoji-container {
+        pointer-events: auto !important;
+    }
+    .mini-heart {
+        position: absolute;
+        font-size: 20px;
+        pointer-events: none;
+        z-index: 1;
+        animation: explode 1s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards;
+    }
+    @keyframes explode {
+        0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(var(--tx), var(--ty)) scale(0);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(estiloCoracao);
+
+// Criar corações periodicamente
+const MAX_CORACOES = 25;
 setInterval(() => {
     if (document.querySelectorAll('.heart').length < MAX_CORACOES) {
         criarCoracao();
     }
-}, 600); // Intervalo menor para criar mais frequentemente
+}, 400);
 
 function interpolarCor(cor1, cor2, fator) {
     const r1 = parseInt(cor1.substring(1,3), 16);
@@ -265,3 +375,214 @@ function atualizarCores() {
 }
 
 atualizarCores();
+
+// Primeiro, vamos usar uma música que sabemos que funciona (uma música livre de direitos autorais)
+const musicList = [
+    {
+        title: "Música Romântica",
+        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" // Este é um exemplo de URL que funciona
+    }
+];
+
+let currentSongIndex = 0;
+const backgroundMusic = new Audio();
+backgroundMusic.loop = true;
+backgroundMusic.volume = 0.3;
+
+const musicBtn = document.getElementById('toggleMusic');
+let isMusicPlaying = false;
+
+// Função para atualizar o visual do botão
+function updateMusicButton() {
+    const icon = isMusicPlaying ? "⏸️" : "▶️";
+    const text = isMusicPlaying ? "Pausar Música" : "Tocar Música";
+    musicBtn.innerHTML = `<span class="music-icon">${icon}</span><span class="music-text">${text}</span>`;
+    musicBtn.className = `music-btn ${isMusicPlaying ? 'playing' : ''}`;
+}
+
+// Função para controlar a música
+async function toggleMusic() {
+    try {
+        if (!backgroundMusic.src) {
+            backgroundMusic.src = musicList[currentSongIndex].url;
+            await backgroundMusic.load();
+        }
+
+        if (isMusicPlaying) {
+            backgroundMusic.pause();
+            isMusicPlaying = false;
+        } else {
+            const playPromise = backgroundMusic.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        isMusicPlaying = true;
+                    })
+                    .catch(error => {
+                        console.log("Erro ao tocar música:", error);
+                        isMusicPlaying = false;
+                    });
+            }
+        }
+        updateMusicButton();
+    } catch (error) {
+        console.log("Erro ao manipular música:", error);
+        isMusicPlaying = false;
+        updateMusicButton();
+    }
+}
+
+// Adicionar evento de clique ao botão
+musicBtn.addEventListener('click', toggleMusic);
+
+// Atualizar o estado do botão quando a música terminar
+backgroundMusic.addEventListener('ended', () => {
+    isMusicPlaying = false;
+    updateMusicButton();
+});
+
+// Atualizar o botão inicialmente
+updateMusicButton();
+
+// Tentar tocar automaticamente quando a página carregar
+document.addEventListener('DOMContentLoaded', () => {
+    toggleMusic().catch(console.error);
+});
+
+// Adicione este CSS para a mensagem de play
+const style = document.createElement('style');
+style.textContent = `
+    .play-alert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 15px 30px;
+        border-radius: 25px;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.5s ease;
+    }
+
+    .play-alert:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateX(-50%) scale(1.05);
+    }
+
+    .alert-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+`;
+document.head.appendChild(style);
+
+// Adicione este CSS para o efeito +1
+const stylePlusOne = document.createElement('style');
+stylePlusOne.textContent = `
+    .plus-one {
+        position: fixed;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+        pointer-events: none;
+        animation: floatUp 1s ease-out forwards;
+        z-index: 1000;
+    }
+
+    @keyframes floatUp {
+        0% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+    }
+`;
+document.head.appendChild(stylePlusOne);
+
+// Adicione esta função para salvar o recorde no localStorage
+function salvarRecorde() {
+    const recordeAtual = localStorage.getItem('recordeCoracoes') || 0;
+    if (heartCount > recordeAtual) {
+        localStorage.setItem('recordeCoracoes', heartCount);
+    }
+}
+
+// Adicione esta função para mostrar o recorde
+function mostrarRecorde() {
+    const recorde = localStorage.getItem('recordeCoracoes') || 0;
+    const recordeElement = document.createElement('div');
+    recordeElement.className = 'recorde';
+    recordeElement.innerHTML = `🏆 Recorde: ${recorde}`;
+    document.querySelector('.heart-counter').appendChild(recordeElement);
+}
+
+// Chame esta função quando a página carregar
+document.addEventListener('DOMContentLoaded', mostrarRecorde);
+
+// Salve o recorde periodicamente
+setInterval(salvarRecorde, 5000);
+
+const comboMensagens = {
+    3: { texto: "Que amor! 💝", cor: "#ff9999" },
+    5: { texto: "Você é incrível! 💖", cor: "#ff7777" },
+    10: { texto: "Combo Apaixonado! 💘", cor: "#ff5555" },
+    15: { texto: "Amor Infinito! 💗", cor: "#ff3333" },
+    20: { texto: "Romance Level MAX! 💓", cor: "#ff1111" },
+    25: { texto: "AMOR EXPLOSIVO! 💞", cor: "#ff0000" }
+};
+
+const mensagensRomanticas = [
+    "Cada coração é um eu te amo!",
+    "Meu amor por você não para de crescer!",
+    "Você é o amor da minha vida!",
+    "Juntos para sempre!",
+    "Você me faz tão feliz!",
+    "Meu coração é seu!",
+    "Te amo mais a cada segundo!",
+    "Você é meu presente da vida!",
+    "Meu amor só aumenta!",
+    "Você é meu mundo inteiro!"
+];
+
+// Sistema de combo
+let comboAtual = 0;
+let ultimoClique = 0;
+const tempoMaximoCombo = 2000; // 2 segundos para manter o combo
+
+function mostrarMensagemCombo(combo, x, y) {
+    const mensagem = document.createElement('div');
+    mensagem.className = 'combo-mensagem';
+    
+    // Encontra a mensagem apropriada para o combo atual
+    let comboInfo = Object.entries(comboMensagens)
+        .reverse()
+        .find(([nivel]) => combo >= Number(nivel));
+    
+    if (comboInfo) {
+        mensagem.textContent = `${comboInfo[1].texto} (x${combo})`;
+        mensagem.style.color = comboInfo[1].cor;
+    }
+    
+    // Adiciona mensagem romântica aleatória
+    const mensagemRomantica = mensagensRomanticas[Math.floor(Math.random() * mensagensRomanticas.length)];
+    
+    // Posiciona a mensagem onde o coração foi estourado
+    mensagem.style.left = `${x}px`;
+    mensagem.style.top = `${y}px`;
+    
+    document.body.appendChild(mensagem);
+    setTimeout(() => mensagem.remove(), 1500);
+}
